@@ -2,15 +2,13 @@
 
 Write your own text adventure games with GTI!
 
-GTI, or Game Text Interpreter, is a tiny byte code intended for use with microcontrollers, such as
-the popular Arduboy or Arduino. GTI files can also be played using the Python player and effort is
-being made to port GTI to PHP and Javascript for playing on the web.
+GTI, or Game Text Interpreter, is a tiny byte code intended for use with microcontrollers, such as the popular Arduboy or Arduino. GTI files can also be played using the Python player and effort is being made to port GTI to PHP and Javascript for playing on the web.
 
 GTI Uses a very simple binary format to use as little space as possible.
 
 ==How to use GTI==
 
-GTI does not currently have a parser, so it requires a CSV file containing all the elements.
+GTI does not currently have a parser, so it requires a CSV file containing all the elements. 
 
 Step 1: 
 
@@ -22,8 +20,7 @@ Run player.py to execute the binary format file on a desktop for testing.
 
 Optional Step 3:
 
-Run bin2array.py to convert the binary file to a C array (for use with Arduino, etc) and play
-using your Arduboy!
+Run bin2array.py to convert the binary file to a C array (for use with Arduino, etc) and play using your Arduboy!
 
 ==GTI Features==
 
@@ -48,20 +45,17 @@ GTI supports (or will support) the following:
 
 Until a parser is written, code must be given to the compiler as a CSV.
 
-The compiler uses labels to build a jump table which ultimately drives the jump addresses within the game. All lines 
-must have a label and just about any character (except a ,) is supported. Spaces are permitted.
+The compiler uses labels to build a jump table which ultimately drives the jump addresses within the game. All lines must have a label and just about any character (except a ,) is supported. Spaces are permitted.
 
 If a branch is not utilized, the program will advance from one line to the next. 
 
-The two prefixes of importance are <label>,room and <label>,special. Room creates a normal mode frame and special creates
-a special mode frame.
+The two prefixes of importance are <label>,room and <label>,special. Room creates a normal mode frame and special creates a special mode frame.
 
 Normal mode frame:
 
 <label>,room,<jump A label>,<jump B label>,<Jump A description>,<Jump B description>,<room description>
 
-Our jump A and B label is the label we should jump to if the player selects that option. Jump A and Jump B description
-is the text of this selection. Ultimately, room description contains the text. You can use the comma in this last field.
+Our jump A and B label is the label we should jump to if the player selects that option. Jump A and Jump B description is the text of this selection. Ultimately, room description contains the text. You can use the comma in this last field.
 
 Special mode frame:
 
@@ -73,14 +67,11 @@ In a special mode frame, we specify the mode. The following modes are currently 
 <label>,special,text,<game text with pause at end>
 <label>,special,jump,<jump label>
 
-End is used for ending the game with some text at the end. After this, the program counter is reset to 0 and the game
-restarts. 
+End is used for ending the game with some text at the end. After this, the program counter is reset to 0 and the game restarts. 
 
-Text is great for a large text field with no selection and little interference from the input field. You can stack up
-several to create multiple pages of text.
+Text is great for a large text field with no selection and little interference from the input field. You can stack up several to create multiple pages of text.
 
-Jump is good for forcing the program to switch locations. This is good when you are not using a typical Jump A or Jump B
-selection.
+Jump is good for forcing the program to switch locations. This is good when you are not using a typical Jump A or Jump B selection.
 
 
 ==GTI Architecture==
@@ -88,22 +79,17 @@ selection.
 [ jump A  ][ jump B  ][ text label for jump A ] (null) [ text label for jump B ] (null) [ room description text ] ( null )
     2B         2B           variable length       1B       variable length        1B       Variable length          1B
 
-GTI uses a very simple, compact system to represent game data. A program counter (PC) starts at address 0
-and executes game code from this point. Branches and jumps change this PC to new addresses. A compiler
-converts text labels into 16 bit memory addresses to reduce burden on the programmer.
+GTI uses a very simple, compact system to represent game data. A program counter (PC) starts at address 0 and executes game code from this point. Branches and jumps change this PC to new addresses. A compiler converts text labels into 16 bit memory addresses to reduce burden on the programmer.
 
-The first two bytes contains the memory address for the text + branch selection A. However, if all bits
-are set (IE: 0xFFFF), this puts the interpreter into special mode.
+The first two bytes contains the memory address for the text + branch selection A. However, if all bits are set (IE: 0xFFFF), this puts the interpreter into special mode.
 
 If the bits are not all set, the interpreter operates in normal mode.
 
 The next two bytes contains the memory address for selection B. 
 
-After this, the text label for option A and the text label for option B is specified. These strings
-are of variable length and are null terminated. 
+After this, the text label for option A and the text label for option B is specified. These strings are of variable length and are null terminated. 
 
-The final piece of information contains the text description with a null terminator. After this, we 
-treat the next data as the memory address for selection A.
+The final piece of information contains the text description with a null terminator. After this, we treat the next data as the memory address for selection A.
 
 ==Special mode==
 
@@ -137,14 +123,11 @@ A = Arduboy, P = Python player, C = compiler
 
 Game over:
 
-This frame contains a null terminated text after the value. This is printed and concluded with
-" *GAME OVER* ", if there is room to print it. After the user selects any button, the program
-counter resets to 0 and the game restarts.
+This frame contains a null terminated text after the value. This is printed and concluded with " *GAME OVER* ", if there is room to print it. After the user selects any button, the program counter resets to 0 and the game restarts.
 
 21 Byte Image:
 
-This format turns large pixel blocks on and off. You can create very compact, low resolution images.
-GTI waits for any key to be pressed afterwards.
+This format turns large pixel blocks on and off. You can create very compact, low resolution images. GTI waits for any key to be pressed afterwards.
 
 Full resolution image:
 
@@ -152,13 +135,11 @@ This displays a full resolution 1 bit image on the display. GTI waits for any ke
 
 Store Variable:
 
-This stores a literal variable within memory. There are 32 x 8 bit and 8 x 16 bit addresses. No
-particular rhyme or reason for this. Great for setting flags, etc.
+This stores a literal variable within memory. There are 32 x 8 bit and 8 x 16 bit addresses. No particular rhyme or reason for this. Great for setting flags, etc.
 
 Evaluate Variable:
 
-Perform a logical operation (GT,LT,LTE,GTE,EQUAL,NOT EQUAL,etc) on two variables or a literal
-and a variable. Branch accordingly.
+Perform a logical operation (GT,LT,LTE,GTE,EQUAL,NOT EQUAL,etc) on two variables or a literal and a variable. Branch accordingly.
 
 Jump:
 
@@ -191,8 +172,7 @@ Vector Images (GTI Vectorcode):
 
 GTI Vectorcode is 
 
-This is for drawing various shapes, lines, and pixels. The goal is to make this extremely efficent, and its moderately
-at the moment.
+This is for drawing various shapes, lines, and pixels. The goal is to make this extremely efficent, and its moderately at the moment.
 
 Shape types:
 
