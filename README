@@ -197,7 +197,7 @@ Extended shape types:
 
 0x08  delay     Delay frames   [frames (255 max)]
 0x09  Char      Character      [character]
-0x0A  Text      Text           [x][y] <string> [null]
+0x0A  Text      Text           [x][y] <string> [0xFF]
 0x0B  Scroll X  Hardware       [x]
 0x0C  Scroll Y  Hardware       [y]
 0x0D  Fast V    Fast line      [x][y][h]
