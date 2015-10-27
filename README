@@ -76,8 +76,11 @@ Jump is good for forcing the program to switch locations. This is good when you 
 
 ==GTI Architecture==
 
-[ jump A  ][ jump B  ][ text label for jump A ] (null) [ text label for jump B ] (null) [ room description text ] ( null )
-    2B         2B           variable length       1B       variable length        1B       Variable length          1B
+[ jump A  ][ jump B  ][ text label for jump A ] (null) [ text label for jump B ] (null) 
+    2B         2B           variable length       1B       variable length        1B    
+
+[ room description text ] ( null )
+   Variable length          1B
 
 GTI uses a very simple, compact system to represent game data. A program counter (PC) starts at address 0 and executes game code from this point. Branches and jumps change this PC to new addresses. A compiler converts text labels into 16 bit memory addresses to reduce burden on the programmer.
 
@@ -165,14 +168,17 @@ Sound Effect Data:
 
 Contains the data of the sound effect.
 
-Vector Images (GTI Vectorcode):
+Vector Images (GTI Vector code):
 
-[ 0xFFFF Jump 1 ] [ Type ] [ Shape Type ] (varies...) [ Shape Type ] (varies ) .... ( Null )
-      2B             1B         1B                         1B                          1B
+[ 0xFFFF Jump 1 ] [ Type ] [ Shape Type ] (varies...) [ Shape Type ] (varies ) .... 
+      2B             1B         1B                         1B                  
 
-GTI Vectorcode is 
+( Null )
+   1B
 
-This is for drawing various shapes, lines, and pixels. The goal is to make this extremely efficent, and its moderately at the moment.
+GTI Vector code is a stand alone bytecode in itself. It can be used for static graphics or animations. Each buffer much be "pushed" before it is displayed, making for the possibility of smooth animation. It is interpreted in sequence with its own program counter. Note that the null terminator is just to end the block of bytecode. It is not used as a separator. 
+
+This is for drawing various shapes, lines, and pixels. The goal is to make this extremely efficient, and its moderately at the moment.
 
 Shape types:
 
