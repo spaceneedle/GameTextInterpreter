@@ -3,12 +3,30 @@
 // arduboy.h: uint8_t getCursorX(); uint8_t getCursorY();
 // arduboy.cpp: uint8_t Arduboy::getCursorX() { return cursor_x; } uint8_t Arduboy::getCursorY() { return cursor_y; }
 // replace char gti[]  with your compiled game bytecode by using compiler.py and bin2array.py -- it is currently silence.bin now
+
+#define ON 1
+#define OFF 0
+
+// Standard includes for Arduboy 
  
 #include <SPI.h>
 #include <EEPROM.h>
 #include "Arduboy.h"
 #include <avr/pgmspace.h>
 Arduboy display;
+
+// Game options
+// Interpreter size tuning (turning off some interpreter support can save PROGMEM memory, but code must not contain related bytecodes (unless stated!)
+
+#define SOUND ON             // 574 bytes (If support is disabled, bytecode is skipped properly)
+#define SERIAL OFF           // 182 bytes (no impact on bytecode interpreting)
+
+#define VARIABLES ON
+#define MUSIC ON
+#define SFXLIB ON            // 496 bytes (If support is disabled, bytecode is skipped properly)
+#define VECTOR ON
+
+// Button definition
 
 #define FIRE_BUTTON 1
 #define JUMP_BUTTON 2
@@ -17,12 +35,13 @@ Arduboy display;
 #define UP 16
 #define LEFT 32
 
+// Init system variables
+
 uint8_t state = 0;
 uint16_t room = 0;
 uint8_t inst = 0;
 uint8_t col = 0;
 uint8_t row = 0;
-uint8_t sound = 1;
 uint8_t effect = 0;
 
 extern const unsigned char arduino[];
@@ -50,160 +69,175 @@ void setup() {
   showIntro();
   display.clearDisplay();
   display.display();
+  #if SERIAL == ON
+  Serial.begin(9600);
+  #endif
 }
 
 void loop() {
 startVM(0);
 }
 
-void showIntro()
+void showIntro()    // Show Arduino retro intro
 {
    for(int i=-8; i<28; i=i+2) {
     display.clearDisplay();
     display.drawSlowXYBitmap(46,i, arduino, 32,8,1);
     display.display();
     delay(1000/30);
-  }  if(sound == 1) { 
+  }  
+  #if SOUND == ON
    display.tunes.tone(987, 160);
     delay(160);
    display.tunes.tone(1318, 400);
    delay(2000);
-  }
+  #endif
 }
 
-/*
-void showMenu(uint8_t selector) { 
-  display.clearDisplay();
-    display.setCursor(0,0);
-  display.println("GTI VM\n\n");
-  if(selector == 0) { display.println("> Start\n  Settings"); } 
-  if(selector == 1) { display.println("  Start\n> Settings"); } 
-  display.display(); 
-  delay(1000/30);
-  if(display.pressed(UP) || display.pressed(DOWN)) { 
-      display.tunes.tone(300, 50);
-      if(state == 0) { state = 1; } else { state = 0; } 
-      while(display.pressed(UP) || display.pressed(DOWN)) { } 
-    } 
-  if(display.pressed(FIRE_BUTTON) || display.pressed(JUMP_BUTTON)) { if(selector == 0) { state = 2; } if(selector == 1) { state = 3; } } 
-} 
-*/
-
 void startVM(uint16_t pc) {
-  while(1) {  
-  uint16_t type = pgm_read_byte_near(&(gti[pc])) << 8 | pgm_read_byte_near(&(gti[pc+1])) & 0xFF;
-  pc++; 
-  col = 0;
-  if(type == 65535) { 
-     pc++;
-     uint8_t mode = pgm_read_byte_near(&(gti[pc])); 
+ while(1) {  
+  uint16_t type = pgm_read_byte_near(&(gti[pc])) << 8 | pgm_read_byte_near(&(gti[pc+1])) & 0xFF;  // Read in type of frame
+  pc++;                                                                                           // bump program counter
+  col = 0;                                                                                        // reset columns in text display
+  if(type == 65535) {                                                                             // SPECIAL Frame Detected
+     pc++;                                                                                        // bump program counter
+     uint8_t mode = pgm_read_byte_near(&(gti[pc]));                                               // get the special packet mode
 
-     switch (mode) { 
-       case 0:   // game over 
-           while(1) { 
-             pc++;
-             uint8_t buff = pgm_read_byte_near(&(gti[pc]));
-             if(buff == 0) { break; } 
-             printer(pgm_read_byte_near(&(gti[pc])));
+     switch (mode) {                                                                              // switch based on what mode the frame is
+
+       // 0x00 - Game Over
+
+       case 0:                                                                                    // Game Over handler
+           while(1) {                                                                             // loop over text until we hit a null
+             pc++;                                                                                // bump program counter
+             uint8_t buff = pgm_read_byte_near(&(gti[pc]));                                       // read a chracter
+             if(buff == 0) { break; }                                                             // is it a null? then we are done printing text
+             printer(pgm_read_byte_near(&(gti[pc])));                                             // print out the text using our text output handler
            }
-           display.print("*GAME OVER*");
-           anykey(); col = 0;
-           return;
-           break;
-       case 5:   // jump
-           pc++;
-           pc = pgm_read_byte_near(&(gti[pc])) << 8 | pgm_read_byte_near(&(gti[pc+1])) & 0xFF;
+           display.print("*GAME OVER*");                                                          // print generic Game Over message
+           #if SERIAL == ON
+           Serial.print("*GAME OVER*");                                                           // if the serial port is turned on, print message over serial
+           #endif
+           anykey();                                                                              // wait for anykey
+           col = 0;                                                                               // reset the columns (probably not needed)
+           return;                                                                                // quit out of the VM
+           break;                                                                                 // break that will not be executed
            
-           break;
-       case 13:  // sfx library
-            pc++;
-            effect = pgm_read_byte_near(&(gti[pc]));
-            switch(effect) { 
-               case 0:   // rumble
-                   for(int x = 60; x < 150; x++) { 
-                   display.tunes.tone(x, 10);  delay(10); }
-                   break;
-               case 1: 
-                   for(int x = 0; x < 100; x++) { 
-                     if(random(0,10) == 1) { display.fillScreen(WHITE); display.display();  } else { display.fillScreen(BLACK); display.display(); } 
+       // 0x05 - Jump    
+           
+       case 5:                                                                                    // Jump handler
+           pc++;                                                                                  // bump the program counter
+           pc = pgm_read_byte_near(&(gti[pc])) << 8 | pgm_read_byte_near(&(gti[pc+1])) & 0xFF;    // Set the program counter to the address in 16 bit field
+           break;                                                                                 // switch break
+           
+       // 0x0D - Effects Library    
+
+       case 13:                                                                                   // Effects Handler
+       #if SFXLIB == ON                                                                           // If our effects library is switched on
+            pc++;                                                                                 // Bump program counter
+            effect = pgm_read_byte_near(&(gti[pc]));                                              // Get effect type
+            
+            switch(effect) {                                                                      // Effect switcher
+            
+               // 0x00 - Low pitched rumbling sound
+            
+               case 0:                                                                            // rumble handler
+                   #if SOUND == ON                                                                // Is sound turned on?
+                   for(int x = 60; x < 150; x++) {                                                // Low frequency sweep 
+                   display.tunes.tone(x, 10);  delay(10); }                                       // Play our low frequency sweep
+                   #endif                                                                         // end sound check
+                   break;                                                                         // switch break
+                  
+               // 0x01 - Random lightning flash   
+                   
+               case 1:                                                                            // Random lightning flash 
+                   for(int x = 0; x < 100; x++) {                                                 // Small loop for our flashes
+                     if(random(0,10) == 1) {                                                      // 1 in 10 chance of a flash
+                            display.fillScreen(WHITE);                                            // Fill screen with white
+                            display.display();                                                    // push it out
+                     } 
+                     else {                                                                       // Not a 1 in 10 chance?
+                            display.fillScreen(BLACK);                                            // Make screen black
+                            display.display();                                                    // Push it out
+                     } 
                    }
-                   break;
-            }  pc++;
-            break;
-       case 16:  // text page
-           while(1) { 
-             pc++;
-             uint8_t buff = pgm_read_byte_near(&(gti[pc]));
-             /*
-                         if(buff == 32) {      // seek ahead for wrapping -- extremely redundant, but we have to do it
-                uint8_t z = 1;
-                while(1) { 
-                   if(pgm_read_byte_near(&(gti[pc+z])) == 32) { 
-                       if((z + col) > 19) { display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK);  display.print("\n"); col = 0; display.display(); break; }   
-                       else { break; } 
-                   }
-                   if(pgm_read_byte_near(&(gti[pc+z])) == 0) { 
-                       if((z + col) > 19) { display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK);  display.print("\n"); col = 0; display.display(); break; }   
-                   }  else { break; }                  
-                  z++;
-                }
-              } */
-             
-             
-             if(buff == 0) { break; } 
-             printer(pgm_read_byte_near(&(gti[pc])));
+                   break;                                                                         // switch break
+            }  
+            pc++;                                                                                 // Bump program counter
+       #else                                                                                      // Otherwise, is the SFX mode disabled?
+         pc++; pc++;                                                                              // Increment program counter so we dont lose position
+       #endif
+            break;                                                                                // switch break
+
+       // 0x10 - Display page of text and wait for any key
+       
+       case 16:                                                                                   // text handler
+           while(1) {                                                                             // print some text until we find a null
+             pc++;                                                                                // Bump program counter
+             uint8_t buff = pgm_read_byte_near(&(gti[pc]));                                       // Read a character
+             if(buff == 0) { break; }                                                             // Is it null? then break out of loop
+             printer(pgm_read_byte_near(&(gti[pc])));                                             // Send text off to our printer 
            }         
-           anykey(); pc++;
-           break;  
+           anykey();                                                                              // Wait for any key 
+           pc++;                                                                                  // Bump program counter
+           break;                                                                                 // Switch case break
+    }
   }
-  }
-  else { 
-      pc++;
-      uint16_t alterexit = pgm_read_byte_near(&(gti[pc])) << 8 | pgm_read_byte_near(&(gti[pc+1])) & 0xFF; 
-      pc++; pc++;
-      int i = 0;
-      while(1 == 1) { 
-        uint8_t buff = pgm_read_byte_near(&(gti[pc]));
-        if(buff == 0) { exita[i] = 0; break; }
-        exita[i] = buff; Serial.print((char)exita[i]);
-        i++; pc++;
+  
+  // We did not find a SPECIAL frame, so we assume it is a NORMAL frame (and per framing format, it must be)
+  // We reuse the 'type' uint16_t variable as jump a's address
+  
+  else {    
+
+     // Jump A description buffer
+    
+      pc++;                                                                                                   // bump program counter
+      uint16_t alterexit = pgm_read_byte_near(&(gti[pc])) << 8 | pgm_read_byte_near(&(gti[pc+1])) & 0xFF;     // get jump b address
+      pc++; pc++;                                                                                             // bump program counter
+      int i = 0;                                                                                              // initalize i (to keep track of array position)
+      while(1 == 1) {                                                                                         // fill jump a description buffer
+        uint8_t buff = pgm_read_byte_near(&(gti[pc]));                                                        // get a chracter
+        if(buff == 0) { exita[i] = 0; break; }                                                                // Is it null? append the null to array then stop
+        exita[i] = buff;                                                                                      // fill array with newest character
+        i++; pc++;                                                                                            // bump array position and program counter
       }
-      pc++;
-      i = 0;
-      while(1 == 1) { 
-        uint8_t buff = pgm_read_byte_near(&(gti[pc]));
-        if(buff == 0) { exitb[i] = 0; break; }
-        exitb[i] = buff; Serial.print((char)exitb[i]);
-        i++; pc++;
-      } int x = 0;
- 
+
+     // Jump B description buffer
       
-      while(1) { 
-             pc++;
-             uint8_t buff = pgm_read_byte_near(&(gti[pc]));
-             if(buff == 0) { break; }  /*
-             if(buff == 32) {      // seek ahead for wrapping -- extremely redundant, but we have to do it
-                uint8_t z = 1;
-                while(1) { 
-                   if(pgm_read_byte_near(&(gti[pc+z])) == 32) { 
-                       if((z + col) > 21) { display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK);  display.print("\n"); col = 0; display.display(); break; }   
-                       else { break; } 
-                   }
-                   if(pgm_read_byte_near(&(gti[pc+z])) == 0) { 
-                       if((z + col) > 21) { display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK);  display.print("\n"); col = 0; display.display(); break; }   
-                   }  else { break; }                  
-                  z++;
-                }
-              } */
-             
-             printer(pgm_read_byte_near(&(gti[pc])));
+      pc++;                                                                                                   // bump program counter
+      i = 0;                                                                                                  // reset array position
+      while(1 == 1) {                                                                                         // fill jump b description buffer 
+        uint8_t buff = pgm_read_byte_near(&(gti[pc]));                                                        // get a character
+        if(buff == 0) { exitb[i] = 0; break; }                                                                // Is it null? append the null to array then stop
+        exitb[i] = buff;                                                                                      // fill array with newest character
+        i++; pc++;                                                                                            // bump array position and program counter
+      } 
+      
+      int x = 0;                                                                                              // define x (we could probably still reuse i?)
+ 
+      // Main description printing (since the description goes before the jump selections)
+      
+      while(1) {                                                                                              // print the main description text, null terminated
+             pc++;                                                                                            // bump program counter
+             uint8_t buff = pgm_read_byte_near(&(gti[pc]));                                                   // get character from main description
+             if(buff == 0) { break; }                                                                         // did we find a null? stop printing description
+             printer(pgm_read_byte_near(&(gti[pc])));                                                         // Print out our newest character
       }  
       pc++; 
-      if(sound == 1) { display.tunes.tone(1318, 50); }
+      #if SOUND == ON
+      display.tunes.tone(1318, 50); 
+      #endif
       display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK); display.display();
-      if(display.getCursorY() < 40) { display.print("\n"); } 
+      if(display.getCursorY() < 40) { display.print("\n"); 
+      #if SERIAL == ON
+      Serial.println();
+      #endif
+      } 
       
       display.print("\nA] ");  display.display();  col=3; 
+      #if SERIAL == ON
+      Serial.print("\nA] ");
+      #endif
        x = 0;
        while(1) { 
              if(exita[x] == 0) { break; } 
@@ -211,9 +245,14 @@ void startVM(uint16_t pc) {
              x++; 
       }  
       x = 0; 
-      if(sound == 1) { display.tunes.tone(1318, 50); }
+      #if SOUND == ON
+      display.tunes.tone(1318, 50); 
+      #endif
       display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK); display.display();
       display.print("\nB] ");  display.display(); col=3;
+      #if SERIAL == ON
+      Serial.print("\nB] ");
+      #endif      
        while(1) { 
              if(exitb[x] == 0) { break; } 
              printer(exitb[x]);
@@ -236,20 +275,31 @@ void settings() { anykey(); }
 
 void printer(uint8_t character) { 
  col++;
- if(col > 20) {  display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK); display.println(); col = 0; } 
+ if(col > 20) {  display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK); display.println(); col = 0; 
+ #if SERIAL == ON
+ Serial.print("\n"); 
+ #endif
+ } 
  if(character == 10) { display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK); col = 0; } 
  display.print((char)character);
- if(sound == 1) { display.tunes.tone(1318, 2); } 
+ #if SOUND == ON
+ display.tunes.tone(1318, 2);
+ #endif
  display.fillRect(display.getCursorX(),display.getCursorY(),8,8,WHITE); 
- display.display(); 
+ display.display();
+ #if SERIAL == ON
+ Serial.print((char)character);
+ #endif 
  delay(50);
 }
 
 uint8_t select() { 
-  uint8_t c = 0; uint8_t blink = 0; if(sound == 1) { 
+  uint8_t c = 0; uint8_t blink = 0; 
+  #if SOUND == ON
      display.tunes.tone(1318, 50);  delay(50);
     display.tunes.tone(400, 50); delay(50);
-    display.tunes.tone(600, 50); delay(50); } 
+    display.tunes.tone(600, 50); delay(50); 
+  #endif
   while(1) { 
    if(display.pressed(FIRE_BUTTON)) { return 1; } 
    if(display.pressed(JUMP_BUTTON)) { return 0; } 
@@ -273,13 +323,18 @@ uint8_t select() {
 
 void anykey() { 
   display.fillRect(display.getCursorX(),display.getCursorY(),8,8,BLACK); display.display(); 
-   if(sound == 1) { display.tunes.tone(600, 50);  delay(50);
+  #if SOUND == ON
+    display.tunes.tone(600, 50);  delay(50);
     display.tunes.tone(1318, 50); delay(50);
-    display.tunes.tone(900, 50); delay(50); }
+    display.tunes.tone(900, 50); delay(50);
+  #endif
     int c = 0;
     int blink = 0;  
   while(1) { 
    if(display.pressed(FIRE_BUTTON) || display.pressed(JUMP_BUTTON)) { break; } 
+   #if SERIAL == ON
+   if(Serial.available()) { Serial.read(); Serial.read(); Serial.read(); break; } 
+   #endif
     c++; 
     if(c > 10000) { 
        if(blink == 1) {  
@@ -295,5 +350,8 @@ void anykey() {
    }    
    }
   display.setCursor(0,0); display.clearDisplay(); display.display(); 
+  #if SERIAL == ON
+  Serial.println("\n"); 
+  #endif
 }
 
