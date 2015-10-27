@@ -1,0 +1,155 @@
+1,special,text,BOOM! RUMBLE! FLASH!
+lightning,special,effect,1
+rumble,special,effect,0
+2,special,text,An explosion somewhere within the city rocks your apartment! 
+3,special,text,A fury of car alarms, flashes of light, screams and yells come from outside your window.
+rumble2,special,effect,0
+4,special,text,Another explosion rocks the city. This time, it seems closer. 
+5,special,text,Your gut instinct is to run down the stairs and into the old fallout shelter.
+apt,room,stay,shelter,Wait it out,Run down stairs,Your heart is pounding. There isn't a moment to lose.
+stay,room,stay2,stairs2,It'll prolly stop,Run down stairs,Another explosion and flash of light knocks you off your feet. Your ears ring.
+stay2,special,text,Your apartment building is hit by something and is destroyed. You manage to survive, but you are trapped in rubble. 
+stay3,special,end,Maybe someone will come rescue? You hear more explosions. The chance is becoming less and less likely.
+shelter,special,text,You run down the stairs into the bunker down below. Two others had the same bright idea.
+shelter2,special,text,Another flash of light from up the staircase and explosion rocks the small room. It might be time to close the door.
+shelter3,room,close,dontclose,Close Door,Don't Close,You feel bad for your neighbors who might be on their way down.
+close,special,text,Just as you start closing the door, someone pleads with you to let them through. "Help! Please! Let me in!"
+close2,special,text,You decide to let them through and promptly close the door.
+close3,special,text,Suddenly, one last explosion pounds the small room, almost knocking everyone over. The power goes out and it becomes quiet.
+close4,special,jump,darkroom
+dontclose,special,text,You hear someone scrambling down the stairs and run into the room! They promptly close the door and lock it.
+dontclose3,special,jump,close3
+darkroom,room,darkroom,1,Wait,Die,You are in a dark room. There is nothing to do. There are no items. The door is jammed.
+stairs2,special,text,Running down the stairs, you overhear someone with an open apartment door on the phone. "..No please! Stop bombing!"
+stairs3,special,text,You decide to stop and easedrop behind the door. The fallout shelter is very close, and you think you can dart in quickly.
+stairs3,special,text,"..I am in the 314 building. I have not evacuated yet!" Evacuated? This is very curious...
+stairs4,special,text,"Yes, I am the only one here. Do you have a lock?..that might just be a reflection.." A lock? What is going on?
+stairs5,special,text,Suddenly, you feel a strange tingling sensation. Then it stops. You are now in a completely different location! Huh?
+spaceship,special,text,Strange men are standing all around a room. "Don, your human form looks perfect! I wouldn't change a thing!"
+spaceship2,special,text,"Here, let me show you to your bridge." You try to play along as these strange men are carrying what looks like a weapon.
+spaceship3,special,text,Wow! You are now a spaceship captain! No one knows your real identity and they think you are an all powerful leader!
+spaceship4,room,bomb,stopbomb,Bomb more,Stop Bombing,"Sir, we are waiting on orders. We are making good progress in destroying earth residents."
+bomb,special,text,"Well, start bombing more then!" you order. It is not like you can go back now. Might as well blow up your own planet!
+bomb2,room,bomb2000,bomb4000,2000 Bombs,4000 Bombs,"Yes sir! Right away! How many more bombs should we send?"
+bomb2000,special,text,"That seems like a more reasonable amount of bombs, sir". You are happy with 2,000 bombs. 4,000 just seems like too many.
+bomb3,special,jump,bombdone
+depart,special,text,"I need to depart the ship." Everyone seems confused. "Excuuuse me?" says another man of unknown job description.
+depart2,special,text,"Why on earth..i mean..space would you do that?" says the man.
+depart3,room,forgot,tv,Forgot something,Left TV on,You have to quickly make up an excuse.  
+stopbomb,special,text,"Wait? Why would we stop bombing!?" says the bombing commander worker guy. He looks very puzzled.
+stopbomb2,special,text,"Because I am the captain! THATS WHY!" This makes perfect sense to everyone in the room and no one asks more questions.
+stopbomb3,room,depart,plotcourse,Depart ship,Plot course somewhere,What will you do next? 
+bomb4000,special,text,"4,000 bombs? Wow. That is a lot of bombs. Okay, that will take a few minutes." You are very content with that number.
+bombdone,special,text,"Okay. All of those bombs were dropped. It is very smokey on earth now," says some guy who is probably the bombing commander.
+bombdone2,room,office,coffee,Go to captain's  office,Locate coffee,All of this bombing is hard work. You decide to take a break.
+office,room,pushbutton,computer,Push red button,Use computer thing,The captain's office looks really boring. There's a big red button and a computer thing.
+computer,special,text,The computer has a screen that says "Locked". There is a password prompt. 
+computer2,room,computerright,computerwrong,1-2-3-4-5,4-23-391-3,You decide to guess the password? Which one is it?
+computerwrong,room,pushbutton,computer2,Push Red Button,Try again,The computer speaks in a terrible voice: "ERROR! ERROR! HACKER ALERT!" That wasn't it!
+computerright,room,email,chat,Read email,Open chat window,"Welcome to computer! You have mail!". There's a chat window
+email,room,read1,read2,Read first one,Read second one,There are two emails. They both have "secret" as the subject but different senders.
+read1,special,text,It reads: "Dear captain. We have detected an insecure password for your account. You must change it within 5 days." You decide to read the second anyway.
+read2,room,click,somethingelse,Click link,Do something else,It reads: "Here is the link to the control system. Bookmark it this time so you stop forgetting it!"
+somethingelse,special,text,Enough of that dumb computer. You get up and look around. Elevator? YES PLEASE! You enter the elevator.
+elevator,room,e1,bridge,Push "E1",Go to bridge,You see 1 button in the elevator labeled "E1". You can also just walk out and go to the bridge.
+e1,special,text,These elevators are weird. They can only go between two floors. Then you get out, and take another. These space aliens haven't discovered  direct elevator service!
+e1room,room,e2,e4,E2 Elevator,E4 Elevator,You are in the elevator 1 lobby between two elevators. Confusing.
+e2,room,l10,l19,Level 10,Level 19,This elevator can only go to level 10 or level 19. You have no idea what these places are. 
+l10,special,text,You reach Level 10. There are a bunch of non-descript hallways. You decide to have some fun as no one can question your authority. You strut down the corridor.
+l10a,room,cart,l10b,Shove cart,Keep walking,You come across some people working down a stairwell. A cart with heavy equipment holds the door open at the top. Tempting.
+l10b,room,rock,l10c,Throw rock,Keep walking,You come across some crappy rock on a pedestal. It's from their dumb moon or something.
+rock,special,text,You pick up the giant moon rock and hurl it at the window. It shatters easily and sucks everything, including you, into space. 
+rock2,special,end,Minimal casualties resulted as the floor was sealed off (it was relatively an unimportant floor anyway).
+cart,special,text,Those guys will never see it coming! You shove the cart down as it smashes down the stairs. You laugh as you hear painful cursing as it plows into the workers. While
+cart2,special,text,this would have been usually uneventful, they were working on the main life support power supply. The cart severed the power cable and all of the oxygen systems turned off.
+cart3,special,end,It was unnoticable for quite some time, but eventually all of the aliens (including you!) succumed to the lack of oxygen. You saved the day, accidently. Sort of.
+l10c,room,panel,l10d,Play with panel,Keep walking,You see a computer panel that says WEAPONS CONTROL SYSTEM. It wants a password but you have a good idea what it probably is.
+l10d,room,turn,l10d,Turn left,Keep walking,This corridor seems endless. Random hallways are to your left. Is the game stuck?
+turn,room,aux,turn2,Auxiliary Room,Keep walking,A boring sounding room is to your left. Best keep walking.
+turn2,room,storage,turn3,Storage Room,Keep walking,Some sort of storage room is to your left.
+stare,special,text,The wall has litterally no pattern at all. You stare off into white space nothingness. You find this soothing.
+turn3,room,upvator,stare,Upvator,Stare at wall,This door leads to something called an "upvator". Maybe it goes up?
+upvator,special,text,You enter the upvator. It has no buttons and immedately takes you to the elevator 1 lobby room.
+upvator2,special,jump,e1room
+storage,room,hat,turn2,Try on hat,Leave room,You enter the storage room. There is nothing but hats! Hundreds! Wow!
+hat,special,text,You try on a random hat. You look in the mirror. Nah, not your style. You put the hat back.
+hat2,special,jump,storage
+aux,room,turn,mashbuttons,Leave room,Mash buttons,Lots and lots of unlabeled buttons and blinky lights. There is a viewscreen of earth and ship security cameras.
+mashbuttons,special,text,You hit all the buttons you can find. Red ones, yellow ones, black ones, even a few green ones! 
+mashbuttons2,special,text,You notice that earth is starting to get awfully large on the view screen. The ship is even tipping 45 degrees.
+mashbuttons3,special,text,Oh this is not good! The ship is spinning out of control! One of these buttons was not a good one to push.
+mashbuttons4,special,text,You start to see some dumb city you don't recognize on the view screen as you get closer and closer to the ground.
+mashbuttons5,special,text,Suddenly, the ship steers and crash lands into a nearby lake with a giant sign that says "Police Training Lake". 
+mashbuttons6,special,text,As the ship bobs in the water, hundreds of police boats swarm the space ship. You see them enter on the security cameras and arrest the aliens.
+mashbuttons7,special,text,A police officer enters the auxiliary room. You try to explain, but you are arrested as an alien for destroying many cities, a major crime.
+jail,room,jail,1,Wait,Die,You are now in jail. There is no escape. Now you just have to wait.
+panel,special,text,You enter in the secret password (1-2-3-4-5) and push every single weapons button. However, planet Earth was still the last
+panel2,special,text,location within the targeting system. You also fired off the planet destruction bomb. Earth is now destroyed. You hear some strange rattling sounds in the bomb bay.
+panel3,room,bombbay,ignore,Investigate bomb bay,Ignore it,The panel also says there is some sort of jam. A count down clock ticks.
+ignore,special,text,You figure it should be someone elses problem anyway. You start struting down the hall pretending like nothing happened.
+ignore2,special,end,The jammed bomb explodes and destroys the ship. No one wins. But at least they won't be messing with other planets anytime soon.
+bombbay,special,text,You enter the bomb bay and notice one of the bomb connector things is damaged. It is preventing the bomb from entering the launching tube. That does not look good.
+bombbay2,room,hammer,kick,Hit with hammer,Kick it,Pending doom awaits. You see a hammer. You also are pretty good at kicking things, so there's that too.
+hammer,special,text,You hit the bomb with a hammer. The clock starts counting down at excessive speed. Uh oh! You damaged the time circuit! This is not good. 
+kick,special,text,You kick it to see what happens. That seems to have done the trick, and the bomb loads into the launcher and fires. It explodes in space.
+kick2,room,moon,rock,Land on moon,Throw rock,There's a small spacecraft here! Earth is gone, but there's always the moon? Another dumb rock is here.
+moon,special,text,You decide the moon is your next destination. You land on the moon, now spinning wildly out of control, due to the lack of a planet earth.
+moona,special,end,Things were kind of okay, but you have no friends on the moon. Over the years, it eventually crashes into the sun. 
+l19,special,text,You reach level 19. The smell of coffee lingers as the only thing on this level appears to be a cheap espresso cart.
+l19a,room,coffeecart,upvator,Coffee Cart,Upvator,You see an upvator! Thank god. Also, you can go up to the espresso cart.
+coffeecart,special,text,"Look, I know what happened," the coffeemaker says. 
+coffeecart2,room,l19a,followgirl,Don't follow,Follow coffeemaker,"You will need to follow me through this door." 
+followgirl,special,text,You follow the coffeemaker through a strange corridor. Eventually, you reach a small garage with a little spaceship.
+followgirl2,special,text,Push the self destruct button and hop in! You land on Earth in a remote location.
+followgirl3,special,text,She says, "now have to fulfill YOUR part of the deal!" What deal!? "Marry me now!" she says. Uh?
+followgirl6,room,dontmarry,marry,Don't marry her,Marry her,She does look very pretty. And she knows how to make coffee. But is that enough?
+dontmarry,special,text,You have proven yourself to be a terrible person. For that, i will change into my true self and exit my humansuit. Uh oh..
+dontmarry2,special,end,She transforms into a giant monster. "You are now my meal!" 
+marry,special,text,You decide that you better take advantage of this while you can. It won't be that bad...will it? 
+marry2,special,text,You saved the day and got the girl. Uh..she is taking off her humansuit! "You have THREE HEADS and TEN ARMS?!"
+marry3,special,end,"Yes of course I do, my new spouse! I love you!" And she gives you a giant 10 arm hug. Well, maybe it'll work out somehow.
+coffee,special,text,"So, uh, where is the coffee maker again?" you ask, ever so slyly. "She's on level 19, sir. E1 to E2 to L19."
+coffee2,room,elevator,bombdone2,Go to elevator,Nevermind,"Oh, yeah, i knew that" (what the heck are all of those directions?)
+forgot,special,text,"I.uhh..forgot something back on earth." The bomber laughs as if it was some sort of joke, and drops 1000 bombs on your city.
+forgot2,special,jump,bombdone2
+tv,special,text,"I uhh...left the TV on." you remark. "You said building 312, right?" the bomber guy asks. Oh great. 
+tv2,special,text,The bomber guy presses a bunch of buttons and a video of your building being destroyed can be seen on a small screen.
+tv3,special,text,"Okay, sir. Nice catch. It's off now." You stare in disbelief. Maybe you shouldn't have said that. 
+tv4,special,jump,bombdone2
+click,room,sewer,somethingelse,Set backwards,Do something else,You enter some sort of administration portal. You see a strange setting called "sewage system direction: forward"
+sewer,special,text,For fun, you change the sewer direction to "backwards". For a while, it didn't seem to do a whole lot, so you pressed the [+] on Sewer PSI Setting 1000 times.
+sewer2,special,text,A terrible rushing sound could be heard in what looked like a bathroom. Bad smells and dark liquid could be seen coming from under the door.
+sewer3,special,text,Some yelling could be heard in the distance: "OH MY GOD! THE TOILETS ARE SEWAGE GEYSERS! HIT THE EMERGENCY SHUT OFF!" Mission accomplished!
+sewer4,special,jump,somethingelse
+chat,special,text,It just says "Meet me on L19 -CG"
+chat2,special,jump,computerright
+bridge,room,office,elevator,Captain's Office,Elevator,You are on the bridge. Lots of buzzing and beeping. Some bombing. Otherwise, not much going on.
+e4,special,text,You reach elevator lobby 4. The other elevator appears to be out of order, so you take the only working one to L5.
+l5,room,teleporter,upvator,Teleporter button,Upvator,You are on L5. There is an upvator! There is just a teleporter here. The one you arrived in.
+teleporter,special,text,You engage the teleporter controls but bump the altitude controls. You are sent to the last location used several floors down: the bomb shelter.
+teleporter2,special,text,You are not sure you are glad to be back or not. All of your friends are here, but there's a problem with the shelter door!
+teleporter3,special,jump,darkroom
+pushbutton,special,text,This big red button has no text on it. It couldn't be THAT important, otherwise it would have some sort of warning on it.
+pushbutton2,special,text,You give the big red button a push. Nothing happens. You push it again a couple more times. Well that sucks.
+pushbutton5,special,text,Suddenly the door opens. Someone rushes in. "CAPTAIN!!! SOMEONE HAS INITIATED THE SELF DESTRUCT SEQUENCE!"
+pushbutton8,special,text,You start to hear a growing rumble. It becomes louder and louder. "Can't you just cancel the self destruct?"
+pushbutton9,special,text,"Where is the countdown?" He looks at you like you are some sort of idiot. "THERE IS NO CANCEL AND THERE IS NO COUNTING!"
+pushbutton9.5,special,text,"PARTS OF THE SHIP ARE BLOWING UP AS WE SPEAK!! IT WILL REACH US IN A MATTER OF MINUTES NOW!"
+pushbutton10,room,escape,green,Find escape pod,Push green button,"THE SHIP IS SELF DESTRUCTING NOW!" Uh oh.
+green,special,text,You frantically start pushing a big green button. "NO! YOU IDIOT! DON'T PUSH THAT!" What could be worse than getting blown up?
+green2,special,text,Suddenly, the ship begins to accelerate. Things start looking very odd out the window. Then the oddness stops. It is normal space again. 
+green3,special,text,You see another planet outside the window, as the ship coasts towards a giant orbiting base structure. The rumbling becomes even louder.
+green4,special,text,"YOU IDIOT! YOU COMMANDED THE SHIP TO DOCK WITH THE HOME MEGABASE. THE QUEEN IS AT THE MEGABASE TODAY! YOU WILL KILL EVERYONE!"
+green5,special,text,Pending doom is soon approaching, you crack a huge smile. 
+green6,room,telltruth,insult,Tell the truth,Insult queen over radio broadcast,How will you spend your final moments?
+telltruth,special,text,You monologue: "I am really a human. I did this all on purpose for trying to destroy our planet. Now you will all die. Idiots."
+telltruth2,special,text,The ship docks with the Home Megabase. A very concerned woman, who looks like a queen, looks frightened at the sight of your exploding ship!
+telltruth3,special,end,The computer barks "Denonating subatomic mega bomb.". The ship explodes, the Home Megabase is no more, and the atmosphere blows off the alien planet.
+insult,special,text,You monologue: "This is a planet megabase wide broadcast. Your queen is a stupid idiot. She smells funny and is terrible at math."
+insult2,special,text,You can hear collective gasps throughout the ship and over the communication channel. "Take it back!" someone says over the radio.
+insult3,special,text,You tell them you won't and you hope their home megabase blows up with her. You laugh uncontrollably. 
+insult4,special,jump,telltruth2
+escape,special,text,There isn't any!
+escapea,special,jump,pushbutton10
+plotcourse,special,text,This isn't Star Trek!
+plotcoursea,special,jump,stopbomb3

@@ -1,0 +1,253 @@
+==About GTI==
+
+Write your own text adventure games with GTI!
+
+GTI, or Game Text Interpreter, is a tiny byte code intended for use with microcontrollers, such as
+the popular Arduboy or Arduino. GTI files can also be played using the Python player and effort is
+being made to port GTI to PHP and Javascript for playing on the web.
+
+GTI Uses a very simple binary format to use as little space as possible.
+
+==How to use GTI==
+
+GTI does not currently have a parser, so it requires a CSV file containing all the elements.
+
+Step 1: 
+
+Run compiler.py, which converts csv to binary format.
+
+Step 2:
+
+Run player.py to execute the binary format file on a desktop for testing.
+
+Optional Step 3:
+
+Run bin2array.py to convert the binary file to a C array (for use with Arduino, etc) and play
+using your Arduboy!
+
+==GTI Features==
+
+GTI supports (or will support) the following:
+
+* Text + branch (Player picks selection A or B)
+* Text only fields
+* Jumping
+* Variables
+* Non-volitle storage
+* Math support
+* Conditional branching
+* 21x8 images
+* 128x64 images
+* Simple vector graphics
+* Melodies
+* Sound effects
+* Animation features
+* 5 bit text support (ITA2), resulting in 40% space reduction
+
+==Writing CSV Code==
+
+Until a parser is written, code must be given to the compiler as a CSV.
+
+The compiler uses labels to build a jump table which ultimately drives the jump addresses within the game. All lines 
+must have a label and just about any character (except a ,) is supported. Spaces are permitted.
+
+If a branch is not utilized, the program will advance from one line to the next. 
+
+The two prefixes of importance are <label>,room and <label>,special. Room creates a normal mode frame and special creates
+a special mode frame.
+
+Normal mode frame:
+
+<label>,room,<jump A label>,<jump B label>,<Jump A description>,<Jump B description>,<room description>
+
+Our jump A and B label is the label we should jump to if the player selects that option. Jump A and Jump B description
+is the text of this selection. Ultimately, room description contains the text. You can use the comma in this last field.
+
+Special mode frame:
+
+<label>,special,<special mode>,(varies....)
+
+In a special mode frame, we specify the mode. The following modes are currently supported by the compiler and well tested:
+
+<label>,special,end,<game over text>
+<label>,special,text,<game text with pause at end>
+<label>,special,jump,<jump label>
+
+End is used for ending the game with some text at the end. After this, the program counter is reset to 0 and the game
+restarts. 
+
+Text is great for a large text field with no selection and little interference from the input field. You can stack up
+several to create multiple pages of text.
+
+Jump is good for forcing the program to switch locations. This is good when you are not using a typical Jump A or Jump B
+selection.
+
+
+==GTI Architecture==
+
+[ jump A  ][ jump B  ][ text label for jump A ] (null) [ text label for jump B ] (null) [ room description text ] ( null )
+    2B         2B           variable length       1B       variable length        1B       Variable length          1B
+
+GTI uses a very simple, compact system to represent game data. A program counter (PC) starts at address 0
+and executes game code from this point. Branches and jumps change this PC to new addresses. A compiler
+converts text labels into 16 bit memory addresses to reduce burden on the programmer.
+
+The first two bytes contains the memory address for the text + branch selection A. However, if all bits
+are set (IE: 0xFFFF), this puts the interpreter into special mode.
+
+If the bits are not all set, the interpreter operates in normal mode.
+
+The next two bytes contains the memory address for selection B. 
+
+After this, the text label for option A and the text label for option B is specified. These strings
+are of variable length and are null terminated. 
+
+The final piece of information contains the text description with a null terminator. After this, we 
+treat the next data as the memory address for selection A.
+
+==Special mode==
+
+[ 0xFFFF Jump 1 ] [ Type ] [ Variable length field ]
+      2B             1B
+
+Special mode alters the way frames are treated. 
+
+A one byte type field contains the following options:
+
+Value Special Type                          Implemented
+----- ------------------------------------- ------------------
+0x00  Game Over text                        APC
+0x01  21 Byte Image
+0x02  Full 1024 byte full resolution image
+0x03  Store Variable                        P
+0x04  Evaluate Variable                     P
+0x05  Jump                                  APC
+0x06  Math
+0x07  Sound Effect                          AC
+0x08  Music Control
+0x09  Move Variable
+0x0A  Music Score Data
+0x0B  Sound Effect Data
+0x0C  Vector image
+0x0D  Sound effect from library             AC
+0x10  Text page                             APC
+
+Implementation Chart:
+A = Arduboy, P = Python player, C = compiler 
+
+Game over:
+
+This frame contains a null terminated text after the value. This is printed and concluded with
+" *GAME OVER* ", if there is room to print it. After the user selects any button, the program
+counter resets to 0 and the game restarts.
+
+21 Byte Image:
+
+This format turns large pixel blocks on and off. You can create very compact, low resolution images.
+GTI waits for any key to be pressed afterwards.
+
+Full resolution image:
+
+This displays a full resolution 1 bit image on the display. GTI waits for any key to be pressed.
+
+Store Variable:
+
+This stores a literal variable within memory. There are 32 x 8 bit and 8 x 16 bit addresses. No
+particular rhyme or reason for this. Great for setting flags, etc.
+
+Evaluate Variable:
+
+Perform a logical operation (GT,LT,LTE,GTE,EQUAL,NOT EQUAL,etc) on two variables or a literal
+and a variable. Branch accordingly.
+
+Jump:
+
+Performs a simple jump anywhere within game memory. This sets the PC.
+
+Sound Effect:
+
+Plays a complex sound bitmap. Great for short effects.
+
+Music Control:
+
+Plays a melody. 0 stops any melody.
+
+Move Variable:
+
+Moves one variable to the next. 
+
+Music Score Data:
+
+Contains data of the music score.
+
+Sound Effect Data:
+
+Contains the data of the sound effect.
+
+Vector Images (GTI Vectorcode):
+
+[ 0xFFFF Jump 1 ] [ Type ] [ Shape Type ] (varies...) [ Shape Type ] (varies ) .... ( Null )
+      2B             1B         1B                         1B                          1B
+
+GTI Vectorcode is 
+
+This is for drawing various shapes, lines, and pixels. The goal is to make this extremely efficent, and its moderately
+at the moment.
+
+Shape types:
+
+Type  Function  Description    Arguments [] = 1 byte
+====  ========= =============  ================================
+0x00  Clear     Clear screen   None
+0x01  Push      Render display None
+0x02  Circle    Draw circle    [x][y][radius][fill]
+0x03  Rect      Draw square    [x][y][w][h][fill]
+0x04  Line      Draw line      [x1][y1][x2][y2][fill]
+0x05  Pixel     Draw pixel     [x][y][fill]
+0x06  Triangle  Draw triangle  [x0][y0][x1][y1][x2][fill]
+0x07  Rounded   Rounded rect   [x0][y0][x1][y1][r][fill]
+
+Extended shape types:
+
+0x08  delay     Delay frames   [frames (255 max)]
+0x09  Char      Character      [character]
+0x0A  Text      Text           [x][y] <string> [null]
+0x0B  Scroll X  Hardware       [x]
+0x0C  Scroll Y  Hardware       [y]
+0x0D  Fast V    Fast line      [x][y][h]
+0x0E  Fast H    Fast line      [x][y][w] 
+0x0F  Bright    brightness     [x]
+0x10  Jump      jump within    [gfx counter][gfx counter] ** this is a real memory address, not relative
+0x11  Jump Out  Change PC      [pc][pc]
+0x12  Compare   Compare jump   [variable] [value] [equal/not equal] [gfx counter][gfx counter] ** real address
+
+0xFF  Quit      Quit gfx mode  None (End graphics mode)
+
+Notes:
+
+Fill has the following bitmask:
+
+Bit 0: 1 = fill off, 0 = fill on
+Bit 1: 1 = white, 0 = black
+
+Variable for the compare can be the following:
+
+0 = up
+1 = down
+2 = left
+3 = right
+4 = A
+5 = B
+
+Sound Effect Library:
+
+The sound effect library contains common effects. It uses a one byte argument. This can also include some basic visual effects:
+
+0 = Low pitched rumble
+1 = Random lightning flashes
+
+
+Text Page:
+
+This prints out an arbitrary length text terminated by null. The player must press a button to advance to the next frame.
+
